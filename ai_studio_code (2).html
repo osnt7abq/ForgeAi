@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ForgeAI — Real AI Creation Operating System</title>
+  <meta name="description" content="Turn ideas into working digital products with live Gemini AI integration." />
+
+  <!-- Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              400: '#818CF8',
+              500: '#6366F1',
+              600: '#4F46E5',
+            },
+            dark: {
+              950: '#030508',
+              900: '#070A11',
+              850: '#0C101A',
+              800: '#121826',
+              750: '#182033',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #030508; }
+    ::-webkit-scrollbar-thumb { background: #182033; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4F46E5; }
+
+    .glass-card {
+      background: rgba(12, 16, 26, 0.72);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+    }
+    .glass-card-elevated {
+      background: rgba(18, 24, 38, 0.88);
+      backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+    }
+
+    .bg-spatial-grid {
+      background-size: 36px 36px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    }
+  </style>
+</head>
+
+<body class="bg-dark-950 text-slate-200 font-sans antialiased selection:bg-brand-500 selection:text-white min-h-screen flex flex-col overflow-x-hidden">
+
+  <!-- Toast Notification Hub -->
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2.5 pointer-events-none"></div>
+
+  <!-- ========================================================================= -->
+  <!-- TOP NAVIGATION BAR -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-dark-950/80 backdrop-blur-2xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-6">
+        <a href="javascript:void(0)" onclick="switchView('landing')" class="flex items-center gap-2.5 group cursor-pointer">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 to-cyan-400 p-[1px] flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform">
+            <div class="w-full h-full bg-dark-950 rounded-[11px] flex items-center justify-center">
+              <svg class="w-4 h-4 text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="font-extrabold text-lg tracking-tight text-white">Forge<span class="text-brand-400">AI</span></span>
+            <span class="text-[9px] uppercase font-mono px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 rounded border border-emerald-500/20 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              AI Key Embedded
+            </span>
+          </div>
+        </a>
+
+        <!-- OS Breadcrumb Indicator -->
+        <div id="navAppBreadcrumb" class="hidden items-center gap-2 text-xs font-mono">
+          <span class="text-slate-600">/</span>
+          <span class="text-slate-200 font-semibold px-2 py-0.5 bg-white/5 rounded-md border border-white/10" id="currentWorkspaceName">Live Studio</span>
+        </div>
+      </div>
+
+      <!-- Right Action Controls -->
+      <div class="flex items-center gap-2.5">
+        <button id="viewToggleBtn" onclick="toggleMainView()" class="px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-all flex items-center gap-1.5">
+          <span id="viewToggleText">Launch Studio</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN CONTAINER -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 flex flex-col relative z-10">
+
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    <!-- 1. LANDING PAGE VIEW -->
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    <div id="landingView" class="w-full flex flex-col">
+      <section class="relative pt-16 pb-24 md:pt-24 md:pb-32 overflow-hidden bg-spatial-grid border-b border-white/5">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">
+          
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs text-slate-300 mb-8 backdrop-blur-xl">
+            <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span class="font-mono text-[11px]">Real AI Code & App Synthesizer (Online)</span>
+          </div>
+
+          <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight max-w-5xl leading-[1.08]">
+            Your idea goes in.<br />
+            <span class="bg-gradient-to-r from-white via-indigo-100 to-slate-400 bg-clip-text text-transparent">A working product comes out.</span>
+          </h1>
+
+          <p class="mt-6 text-base sm:text-lg text-slate-400 max-w-2xl leading-relaxed">
+            Type any prompt to generate live, working web applications, games, calculators, and interactive tools powered directly by Google Gemini AI.
+          </p>
+
+          <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <button onclick="switchView('app'); focusPrompt();" class="px-8 py-3.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-500 hover:from-brand-500 text-white font-bold text-sm shadow-xl shadow-brand-600/30 transition-all flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Start Generating Live
+            </button>
+          </div>
+
+        </div>
+      </section>
+    </div>
+
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    <!-- 2. REAL AI STUDIO WORKSPACE (Live Generating Engine) -->
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    <div id="appView" class="hidden flex-1 flex flex-col bg-dark-950 p-4 md:p-6 space-y-4">
+      
+      <!-- Top AI Command Input Bar -->
+      <div class="glass-card-elevated p-4 rounded-2xl border border-white/10 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-xs font-mono font-bold text-white uppercase tracking-wider">Prompt Real Gemini AI</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+            <span>Model: <strong class="text-emerald-400">Gemini 2.5 Flash</strong></span>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <textarea id="livePromptInput" rows="2" placeholder="Describe what you want to build (e.g. 'Build a playable 2D Snake game with score and neon theme', 'Create a modern dark-themed calculator app', or 'Build a luxury portfolio website')" class="flex-1 bg-dark-950 border border-white/10 rounded-xl p-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 font-sans"></textarea>
+          <button id="generateBtn" onclick="generateRealProduct()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-500 hover:from-brand-500 text-xs sm:text-sm font-bold text-white shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2 transition-all shrink-0">
+            <span id="generateBtnText">⚡ Generate Now</span>
+          </button>
+        </div>
+
+        <!-- Preset Quick Prompts -->
+        <div class="flex flex-wrap items-center gap-2 text-xs font-mono">
+          <span class="text-slate-500">Try these:</span>
+          <button onclick="setPromptAndRun('Build a playable Neon Space Shooter game with keyboard controls, score counter, and starfield')" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5">🎮 Neon Space Game</button>
+          <button onclick="setPromptAndRun('Create a sleek Pomodoro Productivity Timer with start/pause/reset, sound alerts, and task list')" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5">⏱️ Pomodoro Timer</button>
+          <button onclick="setPromptAndRun('Build a luxury modern architecture portfolio with dark glassmorphism, project gallery, and inquiry form')" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5">🌐 Luxury Architecture</button>
+        </div>
+      </div>
+
+      <!-- Live Split Workspace -->
+      <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-[550px]">
+        
+        <!-- Left Column: AI Pipeline Logs & Generated Code Viewer -->
+        <div class="lg:col-span-5 glass-card rounded-2xl p-4 flex flex-col justify-between border border-white/10 space-y-3">
+          <div class="flex items-center justify-between border-b border-white/5 pb-2">
+            <div class="flex gap-2 font-mono text-xs">
+              <button onclick="setLeftTab('status')" id="tabBtn-status" class="px-2.5 py-1 rounded-lg bg-brand-500/20 text-brand-300 font-bold">AI Status</button>
+              <button onclick="setLeftTab('code')" id="tabBtn-code" class="px-2.5 py-1 rounded-lg hover:bg-white/5 text-slate-400">Generated Code</button>
+            </div>
+            <span id="generationTimeBadge" class="text-[10px] font-mono text-slate-500">Idle</span>
+          </div>
+
+          <!-- Status Tab Content -->
+          <div id="leftTab-status" class="flex-1 overflow-y-auto space-y-2.5 text-xs font-mono">
+            <div class="p-3 rounded-xl bg-dark-950 border border-white/5 space-y-2">
+              <div class="text-slate-400 font-bold">Autonomous Engine Pipeline</div>
+              <div id="aiLogList" class="space-y-1.5 text-[11px] text-slate-300">
+                <div class="text-slate-500">Type a prompt above and click "Generate Now" to synthesize real code.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Code Tab Content -->
+          <div id="leftTab-code" class="hidden flex-1 overflow-y-auto">
+            <pre class="p-3 rounded-xl bg-dark-950 border border-white/5 text-[11px] font-mono text-slate-300 overflow-x-auto whitespace-pre-wrap"><code id="rawCodeDisplay">// Generated HTML/JS will appear here...</code></pre>
+          </div>
+
+          <button onclick="copyGeneratedCode()" class="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-mono text-slate-300 border border-white/10 flex items-center justify-center gap-1.5">
+            <span>📋 Copy Generated Code</span>
+          </button>
+        </div>
+
+        <!-- Right Column: Sandboxed Live Interactive Application Viewport -->
+        <div class="lg:col-span-7 glass-card-elevated rounded-2xl flex flex-col border border-white/10 overflow-hidden min-h-[480px]">
+          <div class="px-4 py-2.5 bg-dark-900 border-b border-white/10 flex items-center justify-between text-xs font-mono">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span class="text-slate-300 font-semibold">Live Sandbox Viewport</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="refreshIframe()" class="px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white text-[11px]">↻ Reload</button>
+              <button onclick="openInNewTab()" class="px-2 py-1 rounded bg-brand-500/20 text-brand-300 hover:bg-brand-500/30 text-[11px]">Open Fullscreen ↗</button>
+            </div>
+          </div>
+
+          <!-- Live Sandboxed iframe where real generated code executes -->
+          <div class="flex-1 bg-black relative">
+            <iframe id="liveSandboxIframe" sandbox="allow-scripts allow-modals allow-same-origin allow-forms" class="w-full h-full border-0 absolute inset-0 bg-white dark:bg-dark-950"></iframe>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- REAL GEMINI AI INTEGRATION SCRIPT WITH EMBEDDED KEY -->
+  <!-- ========================================================================= -->
+  <script>
+    // YOUR API KEY EMBEDDED DIRECTLY:
+    const EMBEDDED_API_KEY = "AQ.Ab8RN6I3m4db_bZdtuCB5DRYhKTkVxV5v47NdakG-WkLw7Imsw";
+
+    let currentMainView = 'landing';
+    let currentGeneratedHTML = '';
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadDefaultPreview();
+    });
+
+    function switchView(view) {
+      currentMainView = view;
+      const landing = document.getElementById('landingView');
+      const app = document.getElementById('appView');
+      const breadcrumb = document.getElementById('navAppBreadcrumb');
+      const toggleText = document.getElementById('viewToggleText');
+
+      if (view === 'app') {
+        landing.classList.add('hidden');
+        app.classList.remove('hidden');
+        breadcrumb.classList.remove('hidden');
+        breadcrumb.classList.add('flex');
+        toggleText.innerText = 'Showcase';
+      } else {
+        app.classList.add('hidden');
+        landing.classList.remove('hidden');
+        breadcrumb.classList.add('hidden');
+        breadcrumb.classList.remove('flex');
+        toggleText.innerText = 'Launch Studio';
+      }
+    }
+
+    function toggleMainView() {
+      switchView(currentMainView === 'landing' ? 'app' : 'landing');
+    }
+
+    function focusPrompt() {
+      document.getElementById('livePromptInput').focus();
+    }
+
+    function setPromptAndRun(text) {
+      document.getElementById('livePromptInput').value = text;
+      generateRealProduct();
+    }
+
+    function setLeftTab(tab) {
+      document.getElementById('tabBtn-status').className = (tab === 'status') ? 'px-2.5 py-1 rounded-lg bg-brand-500/20 text-brand-300 font-bold' : 'px-2.5 py-1 rounded-lg hover:bg-white/5 text-slate-400';
+      document.getElementById('tabBtn-code').className = (tab === 'code') ? 'px-2.5 py-1 rounded-lg bg-brand-500/20 text-brand-300 font-bold' : 'px-2.5 py-1 rounded-lg hover:bg-white/5 text-slate-400';
+      
+      document.getElementById('leftTab-status').classList.toggle('hidden', tab !== 'status');
+      document.getElementById('leftTab-code').classList.toggle('hidden', tab !== 'code');
+    }
+
+    function triggerToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'glass-card px-4 py-2.5 rounded-xl border border-brand-500/40 text-white text-xs font-mono shadow-2xl flex items-center gap-2 animate-in fade-in duration-200';
+      toast.innerHTML = `<span class="w-2 h-2 rounded-full bg-brand-400"></span><span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // =========================================================================
+    // REAL CALL TO GEMINI API
+    // =========================================================================
+    async function generateRealProduct() {
+      const prompt = document.getElementById('livePromptInput').value.trim();
+      if (!prompt) {
+        triggerToast('Please type a prompt first.');
+        return;
+      }
+
+      const apiKey = EMBEDDED_API_KEY;
+
+      const btnText = document.getElementById('generateBtnText');
+      const logList = document.getElementById('aiLogList');
+      const timeBadge = document.getElementById('generationTimeBadge');
+      
+      btnText.innerText = '⚡ Synthesizing...';
+      timeBadge.innerText = 'Generating with Gemini...';
+
+      logList.innerHTML = `
+        <div class="text-brand-300 animate-pulse">● Sending request to Gemini 2.5 Flash...</div>
+        <div class="text-slate-400">● Synthesizing interactive single-file application...</div>
+      `;
+
+      const startTime = Date.now();
+
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `You are an elite full-stack frontend engineer and game developer. 
+Create a complete, beautiful, fully working, single-file HTML application based on this request: "${prompt}".
+
+Requirements:
+- Must be 100% self-contained valid HTML code with <!DOCTYPE html>.
+- Use Tailwind CSS CDN (<script src="https://cdn.tailwindcss.com"><\/script>) for modern styling.
+- Use clean vanilla JavaScript inside a <script> tag for full interactive functionality (working games, buttons, logic, state).
+- Ensure dark mode aesthetics and high visual polish.
+- Return ONLY the executable HTML code inside a single \`\`\`html codeblock with NO conversational commentary.`
+              }]
+            }]
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`API returned HTTP ${response.status}. Please check if the API key has active Gemini API access enabled.`);
+        }
+
+        const data = await response.json();
+        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+        // Extract code inside ```html ... ``` or use fallback
+        let code = rawText;
+        const match = rawText.match(/```html([\s\S]*?)```/i);
+        if (match && match[1]) {
+          code = match[1].trim();
+        }
+
+        currentGeneratedHTML = code;
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+
+        // Update logs & Code display
+        logList.innerHTML = `
+          <div class="text-emerald-400">✓ Multi-modal synthesis completed in ${elapsed}s</div>
+          <div class="text-emerald-400">✓ Tailwind DOM structure injected</div>
+          <div class="text-emerald-400">✓ JavaScript runtime executed</div>
+          <div class="text-brand-300 font-bold">✓ Live Sandbox Active</div>
+        `;
+
+        document.getElementById('rawCodeDisplay').innerText = code;
+        timeBadge.innerText = `Generated in ${elapsed}s`;
+
+        // Render code inside sandbox iframe
+        renderToIframe(code);
+        triggerToast('Real AI application compiled & mounted in Sandbox!');
+
+      } catch (err) {
+        logList.innerHTML = `
+          <div class="text-rose-400 font-bold">Error: ${err.message}</div>
+          <div class="text-slate-400 mt-2 text-[10px]">Note: Standard Gemini API keys usually start with 'AIzaSy...'. You can create a free one at aistudio.google.com anytime.</div>
+        `;
+        triggerToast(`Generation error: ${err.message}`);
+      } finally {
+        btnText.innerText = '⚡ Generate Now';
+      }
+    }
+
+    function renderToIframe(htmlContent) {
+      const iframe = document.getElementById('liveSandboxIframe');
+      iframe.srcdoc = htmlContent;
+    }
+
+    function refreshIframe() {
+      if (currentGeneratedHTML) renderToIframe(currentGeneratedHTML);
+    }
+
+    function openInNewTab() {
+      if (!currentGeneratedHTML) {
+        triggerToast('Generate a product first!');
+        return;
+      }
+      const newWin = window.open();
+      newWin.document.write(currentGeneratedHTML);
+      newWin.document.close();
+    }
+
+    function copyGeneratedCode() {
+      if (!currentGeneratedHTML) {
+        triggerToast('No code generated yet.');
+        return;
+      }
+      navigator.clipboard.writeText(currentGeneratedHTML);
+      triggerToast('Copied HTML code to clipboard!');
+    }
+
+    // Default starter preview in sandbox
+    function loadDefaultPreview() {
+      const starterHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <script src="https://cdn.tailwindcss.com"><\/script>
+        </head>
+        <body class="bg-slate-950 text-white min-h-screen flex items-center justify-center p-6 text-center font-sans">
+          <div class="space-y-4 max-w-md">
+            <div class="text-4xl">⚡</div>
+            <h2 class="text-2xl font-bold">ForgeAI Live Sandbox</h2>
+            <p class="text-xs text-slate-400">Your API key is active! Type any prompt above or click a quick prompt to generate real games, calculators, and websites live.</p>
+          </div>
+        </body>
+        </html>
+      `;
+      currentGeneratedHTML = starterHTML;
+      renderToIframe(starterHTML);
+    }
+  </script>
+
+</body>
+</html>
